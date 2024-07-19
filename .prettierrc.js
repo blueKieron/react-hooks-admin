@@ -18,4 +18,4 @@ module.exports = {
 	rangeStart: 0,
 	rangeEnd: Infinity,
 	vueIndentScriptAndStyle: false //vue文件中<script>和<style>标签内部代码是否缩进
- }
+};
