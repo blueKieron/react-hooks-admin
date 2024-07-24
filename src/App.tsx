@@ -1,34 +1,42 @@
-import { useState } from "react";
-import logo from "./logo.svg";
-import "./App.css";
+import { useEffect, useState } from "react";
+import { connect } from "react-redux";
+import { HashRouter } from "react-router-dom";
+import { ConfigProvider } from "antd";
+import zhCN from "antd/lib/locale/zh_CN";
+import enUS from "antd/lib/locale/en_US";
 
-function App() {
-	const [count, setCount] = useState(0);
+import useTheme from "@/hooks/useTheme";
+import i18n from "@/language";
+import { setLanguage } from "@/redux/modules/global/action";
+import { getBrowserLang } from "@/utils/utils";
+
+const App = (props: any) => {
+	const { language, assemblySize, themeConfig, setLanguage } = props;
+	const [i18nLocale, setI18nLocale] = useState(zhCN);
+
+	useTheme(themeConfig);
+
+	//设置antd语言国际化
+	const setAntdLanguage = () => {
+		if (language && language == "zh") return setI18nLocale(zhCN);
+		if (language && language == "en") return setI18nLocale(enUS);
+		if (getBrowserLang() == "zh") return setI18nLocale(zhCN);
+		if (getBrowserLang() == "en") return setI18nLocale(enUS);
+	};
+
+	useEffect(() => {
+		//全局使用国际化
+		i18n.changeLanguage(language || getBrowserLang());
+		setLanguage(language || getBrowserLang());
+		setAntdLanguage();
+	}, [language]);
+
 	return (
-		<div className="App">
-			<header className="App-header">
-				<img src={logo} className="App-logo" alt="logo" />
-				<p>Hello Vite + React!</p>
-				<p>
-					<button type="button" onClick={() => setCount(count => count + 1)}>
-						count is: {count}
-					</button>
-				</p>
-				<p>
-					Edit <code>App.tsx</code> and save to test HMR updates.
-				</p>
-				<p>
-					<a className="App-link" href="https://reactjs.org" target="_blank" rel="noopener noreferrer">
-						Learn React
-					</a>
-					{" | "}
-					<a className="App-link" href="https://vitejs.dev/guide/features.html" target="_blank" rel="noopener noreferrer">
-						Vite Docs
-					</a>
-				</p>
-			</header>
-		</div>
+		<HashRouter>
+			<ConfigProvider locale={i18nLocale} componentSize={assemblySize}></ConfigProvider>
+		</HashRouter>
 	);
-}
+};
 
-export default App;
+const mapStateToProps = (state: any) => state.global;
+export default connect(mapStateToProps, { setLanguage })(App);
